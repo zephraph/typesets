@@ -5,12 +5,10 @@ members = [
 	"codegen-impl",
 	"example-build",
 	"example-macro",
-	"rustfmt-wrapper"
 ]
 
 default-members = [
 	"codegen",
 	"codegen-macro",
 	"codegen-impl",
-	"rustfmt-wrapper"
 ]

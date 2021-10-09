@@ -10,4 +10,4 @@ repository = "https://github.com/ahl/codegen-template.git"
 [dependencies]
 codegen-macro = { path = "../codegen-macro" }
 codegen-impl = { path = "../codegen-impl" }
-rustfmt-wrapper = { path = "../rustfmt-wrapper" }
+rustfmt-wrapper = "0.1.0"
