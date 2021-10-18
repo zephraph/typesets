@@ -15,12 +15,14 @@ fn macro1() {
 }
 
 fn macro2() {
+    #[allow(dead_code)]
     #[derive(Codegen)]
     struct Foo(String);
     print_hi();
 }
 
 fn macro3() {
+    #[allow(dead_code)]
     #[codegen_attr]
     struct Foo(String);
     print_hi();

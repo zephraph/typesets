@@ -1,5 +1,3 @@
-use std::{env, fs, path::Path};
-
 // We pass through all the macro definitions so they can be used by consumers.
 // If a package exports both macro and non-macro items, it's necessary to wrap
 // the macro package like this as packages may directly export macros or
@@ -17,11 +15,7 @@ use rustfmt_wrapper::rustfmt;
 /// output from macros using `cargo expand` it's much easier if the code is
 /// placed in a file. To make things even easier, we run the TokenStream
 /// through rustfmt first.
-pub fn build() {
+pub fn build() -> String {
     let code = do_codegen();
-    let mut out_file = Path::new(&env::var("OUT_DIR").unwrap()).to_path_buf();
-    out_file.push("codegen.rs");
-
-    let text = rustfmt(code).unwrap();
-    fs::write(out_file, text).unwrap();
+    rustfmt(code).unwrap()
 }
