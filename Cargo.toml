@@ -1,14 +1,14 @@
 [workspace]
 members = [
 	"codegen",
-	"codegen-macro",
 	"codegen-impl",
+	"codegen-macro",
 	"example-build",
 	"example-macro",
 ]
 
 default-members = [
 	"codegen",
-	"codegen-macro",
 	"codegen-impl",
+	"codegen-macro",
 ]
