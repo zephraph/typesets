@@ -1,0 +1,15 @@
+[package]
+name = "supertype_macro"
+version = "0.0.1"
+authors = ["Justin Bennett <oss@just-be.dev>"]
+edition = "2018"
+license = "Apache-2.0"
+description = "Main implementation crate for the code generation"
+repository = "https://github.com/ahl/supertype-template.git"
+
+[dependencies]
+supertype-impl = { path = "../supertype-impl" }
+serde_tokenstream = "0.1.2"
+
+[lib]
+proc-macro = true

@@ -1,0 +1,8 @@
+[package]
+name = "example"
+version = "0.0.1"
+authors = ["Justin Bennett <oss@just-be.dev>"]
+edition = "2018"
+
+[dependencies]
+supertype = { path = "../supertype" }

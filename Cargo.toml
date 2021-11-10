@@ -1,14 +1,13 @@
 [workspace]
 members = [
-	"codegen",
-	"codegen-impl",
-	"codegen-macro",
-	"example-build",
-	"example-macro",
+	"supertype",
+	"supertype-impl",
+	"supertype-macro",
+	"example"
 ]
 
 default-members = [
-	"codegen",
-	"codegen-impl",
-	"codegen-macro",
+	"supertype",
+	"supertype-impl",
+	"supertype-macro",
 ]

@@ -1,0 +1,13 @@
+[package]
+name = "supertype"
+version = "0.0.1"
+authors = ["Justin Bennett <oss@just-be.dev>"]
+edition = "2018"
+license = "Apache-2.0"
+description = "Allows"
+repository = "https://github.com/zephraph/supertype.git"
+
+[dependencies]
+supertype-macro = { path = "../supertype-macro" }
+supertype-impl = { path = "../supertype-impl" }
+rustfmt-wrapper = "0.1.0"
