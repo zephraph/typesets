@@ -65,8 +65,8 @@ fn gen_subtype_enum(ident: Ident, parent: Ident, variants: Vec<Variant>) -> Toke
         }
 
         impl From<#ident> for #parent {
-            fn from(child: #ident) {
-                match #ident {
+            fn from(child: #ident) -> Self {
+                match child {
                     #(#parent::#arm_parts => #ident::#arm_parts),*
                 }
             }
@@ -174,8 +174,8 @@ mod tests {
             }
 
             impl From<Sub1> for MyEnum {
-                fn from(child: Sub1) {
-                    match Sub1 {
+                fn from(child: Sub1) -> Self {
+                    match child {
                         MyEnum::Variant1 => Sub1::Variant1,
                         MyEnum::Variant3 { x, y } => Sub1::Variant3 { x, y },
                     }
@@ -205,8 +205,8 @@ mod tests {
             }
 
             impl From<Sub2> for MyEnum {
-                fn from(child: Sub2) {
-                    match Sub2 {
+                fn from(child: Sub2) -> Self {
+                    match child {
                         MyEnum::Variant1 => Sub2::Variant1,
                         MyEnum::Variant2(v0, v1) => Sub2::Variant2(v0, v1),
                     }
@@ -236,8 +236,8 @@ mod tests {
             }
 
             impl From<Sub3> for MyEnum {
-                fn from(child: Sub3) {
-                    match Sub3 {
+                fn from(child: Sub3) -> Self {
+                    match child {
                         MyEnum::Variant2(v0, v1) => Sub3::Variant2(v0, v1),
                         MyEnum::Variant3 { x, y } => Sub3::Variant3 { x, y },
                     }

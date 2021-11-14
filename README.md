@@ -1,6 +1,8 @@
-# Supertype
+# Typesets
 
-This library provides a macro that strives to make it easier to derive a subset of a type from another type. This is useful when you want to centralize the total possible shape of a type and expose partials of that type for use later. Currently only enums are supported, but struct support may be added in the future.
+This library aims to provide a set of macros that help remove the boilerplate of expressing relationships between different types.
+
+## Supertype
 
 Given this configuration
 
@@ -17,7 +19,7 @@ pub enum MyExpansiveType {
 }
 ```
 
-You'll receive an output of
+It'll expand to
 
 ```rust
 pub enum MyExpansiveType {
@@ -32,8 +34,57 @@ pub enum MyNarrowerType {
   State2(u8)
 }
 
+impl TryFrom<MyExpansiveType> for MyNarrowerType {
+  type Error = crate::typesets::supertype::SupertypeError;
+  fn try_from(parent: MyExpansiveType) -> Result<Self, Self::Error> {
+    match parent {
+      MyExpansiveType::State1(v0) => Ok(MyNarrowerType::State1(v0)),
+      MyExpansiveType::State2(v0) => Ok(MyNarrowerType::State2(v0)),
+      other => Err(Self::Error::EnumNoOverlap {
+        supertype: "MyExpansiveType",
+        subtype: "MyNarrowerType",
+        variant: format!("{:?}", other)
+      })
+    }
+  }
+}
+
+impl From<MyNarrowerType> for MyExpansiveType {
+  fn from(child: MyNarrowerType) -> Self {
+    match child {
+      MyNarrowerType::State1(v0) => MyExpansiveType::State1(v0),
+      MyNarrowerType::State2(v0) => MyExpansiveType::State2(v0),
+    }
+  }
+}
+
 pub enum MyOtherType {
   State1(String),
   State3,
+}
+
+
+impl TryFrom<MyExpansiveType> for MyOtherType {
+  type Error = crate::typesets::supertype::SupertypeError;
+  fn try_from(parent: MyExpansiveType) -> Result<Self, Self::Error> {
+    match parent {
+      MyExpansiveType::State1(v0) => Ok(MyOtherType::State1(v0)),
+      MyExpansiveType::State2(v0) => Ok(MyOtherType::State2(v0)),
+      other => Err(Self::Error::EnumNoOverlap {
+        supertype: "MyExpansiveType",
+        subtype: "MyOtherType",
+        variant: format!("{:?}", other)
+      })
+    }
+  }
+}
+
+impl From<MyOtherType> for MyExpansiveType {
+  fn from(child: MyOtherType) -> Self {
+    match child {
+      MyOtherType::State1(v0) => MyExpansiveType::State1(v0),
+      MyOtherType::State2(v0) => MyExpansiveType::State2(v0),
+    }
+  }
 }
 ```
