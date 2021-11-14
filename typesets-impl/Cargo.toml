@@ -12,6 +12,7 @@ quote = "1"
 proc-macro2 = "1"
 syn = { version = "1.0.81", features = ["full"] }
 thiserror = "1.0.30"
+proc-macro-error = "1.0.4"
 
 [dev-dependencies]
 similar-asserts = "1.1.0"

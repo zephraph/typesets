@@ -10,6 +10,7 @@ repository = "https://github.com/zephraph/typesets.git"
 [dependencies]
 typesets-impl = { path = "../typesets-impl" }
 serde_tokenstream = "0.1.2"
+proc-macro-error = "1.0.4"
 
 [lib]
 proc-macro = true

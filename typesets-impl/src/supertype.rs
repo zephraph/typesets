@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
 use proc_macro2::{Span, TokenStream};
+use proc_macro_error::abort_call_site;
 use quote::quote;
 use syn::{Ident, ItemEnum, Variant};
 use thiserror::Error;
@@ -115,7 +116,7 @@ pub fn gen_supertype(item: TokenStream) -> TokenStream {
 
         ident
     } else {
-        panic!() // not an enum
+        abort_call_site!("Supertype currently only supports enums")
     };
 
     let enums: Vec<TokenStream> = child_to_variant
