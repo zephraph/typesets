@@ -1,13 +1,13 @@
 [package]
-name = "supertype"
+name = "typesets"
 version = "0.0.1"
 authors = ["Justin Bennett <oss@just-be.dev>"]
 edition = "2018"
 license = "Apache-2.0"
 description = "Allows"
-repository = "https://github.com/zephraph/supertype.git"
+repository = "https://github.com/zephraph/typesets.git"
 
 [dependencies]
-supertype-macro = { path = "../supertype-macro" }
-supertype-impl = { path = "../supertype-impl" }
+typesets-macro = { path = "../typesets-macro" }
+typesets-impl = { path = "../typesets-impl" }
 rustfmt-wrapper = "0.1.0"

@@ -1,13 +1,13 @@
 [workspace]
 members = [
-	"supertype",
-	"supertype-impl",
-	"supertype-macro",
+	"typesets",
+	"typesets-impl",
+	"typesets-macro",
 	"example"
 ]
 
 default-members = [
-	"supertype",
-	"supertype-impl",
-	"supertype-macro",
+	"typesets",
+	"typesets-impl",
+	"typesets-macro",
 ]

@@ -1,8 +1,6 @@
-use supertype::codegen_attr;
-use supertype::codegen_macro;
-use supertype::Supertype;
+use typesets::Supertype;
 
-/// Show the three different uses of our simple supertype macros
+/// Show the three different uses of our simple typesets macros
 fn main() {
     macro1();
     macro2();
