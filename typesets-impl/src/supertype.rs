@@ -1,10 +1,12 @@
 use std::collections::BTreeMap;
 
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::TokenStream;
 use proc_macro_error::abort_call_site;
 use quote::quote;
 use syn::{Ident, ItemEnum, Variant};
 use thiserror::Error;
+
+use crate::gen_enum::gen_subtype_enum;
 
 // TODO
 // 1. Variant arm to match arm
@@ -18,61 +20,6 @@ pub enum SupertypeError {
         subtype: &'static str,
         variant: &'static str,
     },
-}
-
-fn variant_to_arm_partial(variant: &Variant) -> TokenStream {
-    let name = variant.ident.clone();
-    match variant.fields.clone() {
-        syn::Fields::Named(fields) => {
-            let field_idents: Vec<Ident> = fields
-                .named
-                .iter()
-                .map(|field| field.ident.clone().unwrap())
-                .collect();
-            quote! { #name { #(#field_idents),* } }
-        }
-        syn::Fields::Unnamed(fields) => {
-            let field_idents: Vec<Ident> = fields
-                .unnamed
-                .iter()
-                .enumerate()
-                .map(|(idx, _)| Ident::new(format!("v{}", idx).as_str(), Span::call_site()))
-                .collect();
-            quote! { #name( #(#field_idents),* ) }
-        }
-        syn::Fields::Unit => quote! { #name },
-    }
-}
-
-fn gen_subtype_enum(ident: Ident, parent: Ident, variants: Vec<Variant>) -> TokenStream {
-    let arm_parts: Vec<TokenStream> = variants.iter().map(|v| variant_to_arm_partial(v)).collect();
-    quote! {
-        enum #ident {
-            #(#variants),*
-        }
-
-        impl TryFrom<#parent> for #ident {
-            type Error = crate::typesets::supertype::SupertypeError;
-            fn try_from(parent: #parent) -> Result<Self, Self::Error> {
-                match parent {
-                    #(#parent::#arm_parts => Ok(#ident::#arm_parts)),*,
-                    other => Err(Self::Error::EnumNoOverlap {
-                        supertype: stringify!(#parent),
-                        subtype: stringify!(#ident),
-                        variant: format!("{:?}", other)
-                    })
-                }
-            }
-        }
-
-        impl From<#ident> for #parent {
-            fn from(child: #ident) -> Self {
-                match child {
-                    #(#parent::#arm_parts => #ident::#arm_parts),*
-                }
-            }
-        }
-    }
 }
 
 /// This is our trivial code generation; one imagines we might want to do
@@ -160,8 +107,8 @@ mod tests {
             impl TryFrom<MyEnum> for Sub1 {
                 type Error = crate::typesets::supertype::SupertypeError;
 
-                fn try_from(parent: MyEnum) -> Result<Self, Self::Error> {
-                    match parent {
+                fn try_from(supertype: MyEnum) -> Result<Self, Self::Error> {
+                    match supertype {
                         MyEnum::Variant1 => Ok(Sub1::Variant1),
                         MyEnum::Variant3 { x, y } => Ok(Sub1::Variant3 { x, y }),
                         other => Err(Self::Error::EnumNoOverlap {
@@ -191,8 +138,8 @@ mod tests {
             impl TryFrom<MyEnum> for Sub2 {
                 type Error = crate::typesets::supertype::SupertypeError;
 
-                fn try_from(parent: MyEnum) -> Result<Self, Self::Error> {
-                    match parent {
+                fn try_from(supertype: MyEnum) -> Result<Self, Self::Error> {
+                    match supertype {
                         MyEnum::Variant1 => Ok(Sub2::Variant1),
                         MyEnum::Variant2(v0, v1) => Ok(Sub2::Variant2(v0, v1)),
                         other => Err(Self::Error::EnumNoOverlap {
@@ -222,8 +169,8 @@ mod tests {
             impl TryFrom<MyEnum> for Sub3 {
                 type Error = crate::typesets::supertype::SupertypeError;
 
-                fn try_from(parent: MyEnum) -> Result<Self, Self::Error> {
-                    match parent {
+                fn try_from(supertype: MyEnum) -> Result<Self, Self::Error> {
+                    match supertype {
                         MyEnum::Variant2(v0, v1) => Ok(Sub3::Variant2(v0, v1)),
                         MyEnum::Variant3 {x, y} => Ok(Sub3::Variant3 {x, y}),
                         other => Err(Self::Error::EnumNoOverlap {

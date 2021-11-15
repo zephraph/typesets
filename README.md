@@ -4,7 +4,9 @@ This library aims to provide a set of macros that help remove the boilerplate of
 
 ## Supertype
 
-Given this configuration
+This derive macro provides the ability to generate enums which are a subset of the derived type.
+
+To use, simply include the `Supertype` and denote which variants should go to which derived enums by the `subtype` attr.
 
 ```rust
 #[derive(Supertype)]
@@ -19,7 +21,7 @@ pub enum MyExpansiveType {
 }
 ```
 
-It'll expand to
+The above will expand to...
 
 ```rust
 pub enum MyExpansiveType {
@@ -84,6 +86,53 @@ impl From<MyOtherType> for MyExpansiveType {
     match child {
       MyOtherType::State1(v0) => MyExpansiveType::State1(v0),
       MyOtherType::State2(v0) => MyExpansiveType::State2(v0),
+    }
+  }
+}
+```
+
+## Subtype
+
+Sometimes you'll want to describe that a given enum is a subtype of another enum without actually having access to the original enum.
+This can be accomplished with the `subtype_of` attr macro.
+
+```
+#[subtype_of(SomeSuperType)]
+enum MySubType {
+  Variant1,
+  Variant2(u8)
+}
+```
+
+which will expand to
+
+```rust
+enum MySubType {
+  Variant1,
+  Variant2(u8)
+}
+
+impl TryFrom<SomeSuperType> for MySubType {
+  type Error = crate::typesets::subtype::SubtypeError;
+
+  fn try_from(parent: SomeSuperType) -> Result<Self, Self::Error> {
+    match parent {
+      SomeSuperType::Variant1 => MySubType::Variant1,
+      SomeSuperType::Variant2(v0) => MySubType::Variant2(v0),
+      other => Self::Error::EnumNoOverlap {
+        supertype: "SomeSuperType",
+        subtype: "MySubType",
+        variant: format!("{:?}", other)
+      }
+    }
+  }
+}
+
+impl From<MySubType> for SomeSuperType {
+  fn for(child: MySubType) -> Self {
+    match child {
+      MySubType::Variant1 => MySupertype::Variant1,
+      MySubType::Variant2(v0) => MySupertype::Variant2(v0),
     }
   }
 }

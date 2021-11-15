@@ -1,5 +1,5 @@
 use proc_macro::TokenStream;
-use typesets_impl::supertype::gen_supertype;
+use typesets_impl::{subtype::gen_subtype, supertype::gen_supertype};
 
 #[macro_use]
 extern crate proc_macro_error;
@@ -10,4 +10,10 @@ extern crate proc_macro_error;
 #[proc_macro_error]
 pub fn supertype_derive(item: TokenStream) -> TokenStream {
     gen_supertype(item.into()).into()
+}
+
+#[proc_macro_attribute]
+#[proc_macro_error]
+pub fn subtype_of(input: TokenStream, item: TokenStream) -> TokenStream {
+    gen_subtype(input.into(), item.into()).into()
 }
