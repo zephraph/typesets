@@ -9,5 +9,4 @@ repository = "https://github.com/zephraph/typesets.git"
 
 [dependencies]
 typesets-macro = { path = "../typesets-macro" }
-typesets-impl = { path = "../typesets-impl" }
 rustfmt-wrapper = "0.1.0"

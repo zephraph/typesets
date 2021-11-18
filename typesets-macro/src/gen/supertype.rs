@@ -6,7 +6,7 @@ use quote::quote;
 use syn::{Ident, ItemEnum, Variant};
 use thiserror::Error;
 
-use crate::gen_enum::gen_subtype_enum;
+use super::enum_helper::gen_subtype_enum;
 
 // TODO
 // 1. Variant arm to match arm
@@ -82,7 +82,6 @@ mod tests {
     use rustfmt_wrapper::rustfmt;
 
     use super::*;
-    use crate::supertype::gen_supertype;
 
     #[test]
     fn test() {
@@ -104,7 +103,7 @@ mod tests {
                 Variant3 { x: u8, y: u8 }
             }
 
-            impl TryFrom<MyEnum> for Sub1 {
+            impl std::convert::TryFrom<MyEnum> for Sub1 {
                 type Error = crate::typesets::supertype::SupertypeError;
 
                 fn try_from(supertype: MyEnum) -> Result<Self, Self::Error> {
@@ -124,8 +123,8 @@ mod tests {
             impl From<Sub1> for MyEnum {
                 fn from(child: Sub1) -> Self {
                     match child {
-                        MyEnum::Variant1 => Sub1::Variant1,
-                        MyEnum::Variant3 { x, y } => Sub1::Variant3 { x, y },
+                        Sub1::Variant1 => MyEnum::Variant1,
+                        Sub1::Variant3 { x, y } => MyEnum::Variant3 { x, y },
                     }
                 }
             }
@@ -135,8 +134,8 @@ mod tests {
                 Variant2(u16, u8)
             }
 
-            impl TryFrom<MyEnum> for Sub2 {
-                type Error = crate::typesets::supertype::SupertypeError;
+            impl std::convert::TryFrom<MyEnum> for Sub2 {
+                type Error = super::SupertypeError;
 
                 fn try_from(supertype: MyEnum) -> Result<Self, Self::Error> {
                     match supertype {
@@ -155,8 +154,8 @@ mod tests {
             impl From<Sub2> for MyEnum {
                 fn from(child: Sub2) -> Self {
                     match child {
-                        MyEnum::Variant1 => Sub2::Variant1,
-                        MyEnum::Variant2(v0, v1) => Sub2::Variant2(v0, v1),
+                        Sub2::Variant1 => MyEnum::Variant1,
+                        Sub2::Variant2(v0, v1) => MyEnum::Variant2(v0, v1),
                     }
                 }
             }
@@ -166,7 +165,7 @@ mod tests {
                 Variant3 { x: u8, y: u8 }
             }
 
-            impl TryFrom<MyEnum> for Sub3 {
+            impl std::convert::TryFrom<MyEnum> for Sub3 {
                 type Error = crate::typesets::supertype::SupertypeError;
 
                 fn try_from(supertype: MyEnum) -> Result<Self, Self::Error> {
@@ -186,8 +185,8 @@ mod tests {
             impl From<Sub3> for MyEnum {
                 fn from(child: Sub3) -> Self {
                     match child {
-                        MyEnum::Variant2(v0, v1) => Sub3::Variant2(v0, v1),
-                        MyEnum::Variant3 { x, y } => Sub3::Variant3 { x, y },
+                        Sub3::Variant2(v0, v1) => MyEnum::Variant2(v0, v1),
+                        Sub3::Variant3 { x, y } => MyEnum::Variant3 { x, y },
                     }
                 }
             }
