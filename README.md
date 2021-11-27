@@ -94,9 +94,10 @@ impl From<MyOtherType> for MyExpansiveType {
 ## Subtype
 
 Sometimes you'll want to describe that a given enum is a subtype of another enum without actually having access to the original enum.
-This can be accomplished with the `subtype_of` attr macro.
+This can be accomplished with the `Subtype` derive macro and the `subtype_of` attribute.
 
 ```
+#[derive(Subtype)]
 #[subtype_of(SomeSuperType)]
 enum MySubType {
   Variant1,

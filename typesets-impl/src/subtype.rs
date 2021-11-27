@@ -5,12 +5,19 @@ use syn::{ItemEnum, Variant};
 
 use crate::gen_enum::gen_enum_conversion;
 
-pub fn gen_subtype(input: TokenStream, item: TokenStream) -> TokenStream {
-    let supertype = syn::parse2::<Ident>(input).unwrap();
+pub fn gen_subtype(input: TokenStream) -> TokenStream {
     if let Ok(ItemEnum {
-        variants, ident, ..
-    }) = syn::parse2(item)
+        variants, ident, attrs, ..
+    }) = syn::parse2(input)
     {
+        let supertype = attrs.iter().find(|a| a.path.is_ident("subtype_of"));
+        let supertype: Ident = match supertype {
+            Some(attr) => match attr.parse_args::<Ident>() {
+                Ok(ident) => ident,
+                Err(_) => abort_call_site!("Expected `subtype_of` attribute to take an ident argument"),
+            },
+            None => abort_call_site!("Expected `subtype_of` attribute describing what the super type is"),
+        };
         let mut variants_list: Vec<Variant> = Vec::default();
         for variant in variants {
             variants_list.push(variant);
@@ -29,8 +36,8 @@ mod tests {
 
     #[test]
     fn test() {
-        let attr = quote! { SomeSuperType };
         let input = quote! {
+          #[subtype_of(SomeSuperType)]
           enum MyEnum {
             Variant1,
             Variant2(u8),
@@ -69,7 +76,7 @@ mod tests {
         };
 
         similar_asserts::assert_str_eq!(
-            rustfmt(gen_subtype(attr, input)).unwrap(),
+            rustfmt(gen_subtype(input)).unwrap(),
             rustfmt(expected).unwrap()
         )
     }
