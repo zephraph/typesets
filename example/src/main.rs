@@ -1,27 +1,37 @@
-use typesets::*;
+use std::convert::TryInto;
+use std::net::IpAddr;
 
-/// Show the three different uses of our simple typesets macros
+use typesets::Supertype;
+use typesets::TypesetsError;
+
 fn main() {
-    macro1();
-    macro2();
-    macro3();
-}
-
-fn macro1() {
-    codegen_macro!();
-    print_hi();
-}
-
-fn macro2() {
+    #[derive(Debug, Supertype, Clone)]
     #[allow(dead_code)]
-    #[derive(Codegen)]
-    struct Foo(String);
-    print_hi();
-}
+    pub enum NetworkTarget {
+        #[subtype(RouteTarget, RouteDestination)]
+        Vpc(String),
 
-fn macro3() {
-    #[allow(dead_code)]
-    #[codegen_attr]
-    struct Foo(String);
-    print_hi();
+        #[subtype(RouteTarget, RouteDestination)]
+        Subnet(String),
+
+        #[subtype(RouteTarget)]
+        Instance(String),
+
+        Tag(String),
+
+        #[subtype(RouteTarget, RouteDestination)]
+        Ip(IpAddr),
+
+        #[subtype(RouteTarget)]
+        InternetGateway(String),
+
+        FloatingIp(String),
+    }
+
+    let n = NetworkTarget::Vpc("test".to_string());
+    let t: RouteTarget = n.clone().try_into().unwrap();
+    let d: RouteDestination = n.clone().try_into().unwrap();
+    let nt: NetworkTarget = t.into();
+    let nd: NetworkTarget = d.into();
+    println!("{:?}, {:?}", nt, nd);
 }
