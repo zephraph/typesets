@@ -1,4 +1,4 @@
-use typesets::Supertype;
+use typesets::*;
 
 /// Show the three different uses of our simple typesets macros
 fn main() {

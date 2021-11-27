@@ -3,7 +3,7 @@ use proc_macro_error::abort_call_site;
 use quote::quote;
 use syn::{ItemEnum, Variant};
 
-use crate::gen_enum::gen_enum_conversion;
+use super::gen_enum::gen_enum_conversion;
 
 pub fn gen_subtype(input: TokenStream) -> TokenStream {
     if let Ok(ItemEnum {
@@ -46,8 +46,8 @@ mod tests {
         };
 
         let expected = quote! {
-            impl TryFrom<SomeSuperType> for MyEnum {
-                type Error = crate::typesets::supertype::SupertypeError;
+            impl std::convert::TryFrom<SomeSuperType> for MyEnum {
+                type Error = crate::TypesetsError;
 
                 fn try_from(supertype: SomeSuperType) -> Result<Self, Self::Error> {
                     match supertype {
@@ -55,9 +55,9 @@ mod tests {
                         SomeSuperType::Variant2(v0) => Ok(MyEnum::Variant2(v0)),
                         SomeSuperType::Variant3 {x, y} => Ok(MyEnum::Variant3 {x, y}),
                         other => Err(Self::Error::EnumNoOverlap {
-                        supertype: stringify!(SomeSuperType),
-                        subtype: stringify!(MyEnum),
-                        variant: format!("{:?}", other)
+                        supertype: stringify!(SomeSuperType).to_string(),
+                        subtype: stringify!(MyEnum).to_string(),
+                        variant: format!("{:?}", other).to_string(),
                     })
 
                     }
@@ -67,9 +67,9 @@ mod tests {
             impl From<MyEnum> for SomeSuperType {
                 fn from(child: MyEnum) -> Self {
                     match child {
-                        SomeSuperType::Variant1 => MyEnum::Variant1,
-                        SomeSuperType::Variant2(v0) => MyEnum::Variant2(v0),
-                        SomeSuperType::Variant3{x, y} => MyEnum::Variant3{x, y},
+                        MyEnum::Variant1 => SomeSuperType::Variant1,
+                        MyEnum::Variant2(v0) => SomeSuperType::Variant2(v0),
+                        MyEnum::Variant3{x, y} => SomeSuperType::Variant3{x, y}
                     }
                 }
             }
