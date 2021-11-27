@@ -1,13 +1,11 @@
 [workspace]
 members = [
 	"typesets",
-	"typesets-impl",
 	"typesets-macro",
 	"example"
 ]
 
 default-members = [
 	"typesets",
-	"typesets-impl",
 	"typesets-macro",
 ]

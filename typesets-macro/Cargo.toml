@@ -8,10 +8,16 @@ description = "Main implementation crate for the code generation"
 repository = "https://github.com/zephraph/typesets.git"
 
 [dependencies]
-typesets-impl = { path = "../typesets-impl" }
+proc-macro-error = "1.0.4"
+proc-macro2 = "1"
+quote = "1"
 serde = "1.0.130"
 serde_tokenstream = "0.1.2"
-proc-macro-error = "1.0.4"
+syn = { version = "1.0.81", features = ["full"] }
+
+[dev-dependencies]
+similar-asserts = "1.1.0"
+rustfmt-wrapper = "0.1.0"
 
 [lib]
 proc-macro = true

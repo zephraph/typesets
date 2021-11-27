@@ -1,5 +1,7 @@
+mod impls;
+
 use proc_macro::TokenStream;
-use typesets_impl::{subtype::gen_subtype, supertype::gen_supertype};
+use impls::{subtype::gen_subtype, supertype::gen_supertype};
 
 #[macro_use]
 extern crate proc_macro_error;

@@ -4,23 +4,8 @@ use proc_macro2::TokenStream;
 use proc_macro_error::abort_call_site;
 use quote::quote;
 use syn::{Ident, ItemEnum, Variant};
-use thiserror::Error;
 
-use crate::gen_enum::gen_subtype_enum;
-
-// TODO
-// 1. Variant arm to match arm
-// 2. What will error type be for try from? std::error::Error
-
-#[derive(Error, Debug)]
-pub enum SupertypeError {
-    #[error("failed to convert type {subtype:?} which does not contain variant {variant:?} from {supertype:?}")]
-    EnumNoOverlap {
-        supertype: &'static str,
-        subtype: &'static str,
-        variant: &'static str,
-    },
-}
+use super::gen_enum::gen_subtype_enum;
 
 /// This is our trivial code generation; one imagines we might want to do
 /// something fancier, but this is sufficient to demonstrate how we might use
@@ -82,7 +67,6 @@ mod tests {
     use rustfmt_wrapper::rustfmt;
 
     use super::*;
-    use crate::supertype::gen_supertype;
 
     #[test]
     fn test() {
@@ -99,22 +83,23 @@ mod tests {
         };
 
         let expected = quote! {
+            #[derive(Debug)]
             enum Sub1 {
                 Variant1,
                 Variant3 { x: u8, y: u8 }
             }
 
-            impl TryFrom<MyEnum> for Sub1 {
-                type Error = crate::typesets::supertype::SupertypeError;
+            impl std::convert::TryFrom<MyEnum> for Sub1 {
+                type Error = crate::TypesetsError;
 
                 fn try_from(supertype: MyEnum) -> Result<Self, Self::Error> {
                     match supertype {
                         MyEnum::Variant1 => Ok(Sub1::Variant1),
                         MyEnum::Variant3 { x, y } => Ok(Sub1::Variant3 { x, y }),
                         other => Err(Self::Error::EnumNoOverlap {
-                        supertype: stringify!(MyEnum),
-                        subtype: stringify!(Sub1),
-                        variant: format!("{:?}", other)
+                        supertype: stringify!(MyEnum).to_string(),
+                        subtype: stringify!(Sub1).to_string(),
+                        variant: format!("{:?}", other).to_string(),
                     })
 
                     }
@@ -124,28 +109,29 @@ mod tests {
             impl From<Sub1> for MyEnum {
                 fn from(child: Sub1) -> Self {
                     match child {
-                        MyEnum::Variant1 => Sub1::Variant1,
-                        MyEnum::Variant3 { x, y } => Sub1::Variant3 { x, y },
+                        Sub1::Variant1 => MyEnum::Variant1,
+                        Sub1::Variant3 { x, y } => MyEnum::Variant3 { x, y },
                     }
                 }
             }
 
+            #[derive(Debug)]
             enum Sub2 {
                 Variant1,
                 Variant2(u16, u8)
             }
 
-            impl TryFrom<MyEnum> for Sub2 {
-                type Error = crate::typesets::supertype::SupertypeError;
+            impl std::convert::TryFrom<MyEnum> for Sub2 {
+                type Error = crate::TypesetsError;
 
                 fn try_from(supertype: MyEnum) -> Result<Self, Self::Error> {
                     match supertype {
                         MyEnum::Variant1 => Ok(Sub2::Variant1),
                         MyEnum::Variant2(v0, v1) => Ok(Sub2::Variant2(v0, v1)),
                         other => Err(Self::Error::EnumNoOverlap {
-                        supertype: stringify!(MyEnum),
-                        subtype: stringify!(Sub2),
-                        variant: format!("{:?}", other)
+                        supertype: stringify!(MyEnum).to_string(),
+                        subtype: stringify!(Sub2).to_string(),
+                        variant: format!("{:?}", other).to_string(),
                     })
 
                     }
@@ -155,28 +141,29 @@ mod tests {
             impl From<Sub2> for MyEnum {
                 fn from(child: Sub2) -> Self {
                     match child {
-                        MyEnum::Variant1 => Sub2::Variant1,
-                        MyEnum::Variant2(v0, v1) => Sub2::Variant2(v0, v1),
+                        Sub2::Variant1 => MyEnum::Variant1,
+                        Sub2::Variant2(v0, v1) => MyEnum::Variant2(v0, v1)
                     }
                 }
             }
 
+            #[derive(Debug)]
             enum Sub3 {
                 Variant2(u16, u8),
                 Variant3 { x: u8, y: u8 }
             }
 
-            impl TryFrom<MyEnum> for Sub3 {
-                type Error = crate::typesets::supertype::SupertypeError;
+            impl std::convert::TryFrom<MyEnum> for Sub3 {
+                type Error = crate::TypesetsError;
 
                 fn try_from(supertype: MyEnum) -> Result<Self, Self::Error> {
                     match supertype {
                         MyEnum::Variant2(v0, v1) => Ok(Sub3::Variant2(v0, v1)),
                         MyEnum::Variant3 {x, y} => Ok(Sub3::Variant3 {x, y}),
                         other => Err(Self::Error::EnumNoOverlap {
-                        supertype: stringify!(MyEnum),
-                        subtype: stringify!(Sub3),
-                        variant: format!("{:?}", other)
+                        supertype: stringify!(MyEnum).to_string(),
+                        subtype: stringify!(Sub3).to_string(),
+                        variant: format!("{:?}", other).to_string(),
                     })
 
                     }
@@ -186,8 +173,8 @@ mod tests {
             impl From<Sub3> for MyEnum {
                 fn from(child: Sub3) -> Self {
                     match child {
-                        MyEnum::Variant2(v0, v1) => Sub3::Variant2(v0, v1),
-                        MyEnum::Variant3 { x, y } => Sub3::Variant3 { x, y },
+                        Sub3::Variant2(v0, v1) => MyEnum::Variant2(v0, v1),
+                        Sub3::Variant3 { x, y } => MyEnum::Variant3 { x, y },
                     }
                 }
             }

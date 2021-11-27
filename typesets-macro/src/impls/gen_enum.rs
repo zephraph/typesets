@@ -29,6 +29,7 @@ pub fn variant_to_arm_partial(variant: &Variant) -> TokenStream {
 pub fn gen_subtype_enum(subtype: Ident, supertype: Ident, variants: Vec<Variant>) -> TokenStream {
     let conversions = gen_enum_conversion(&subtype, &supertype, &variants);
     quote! {
+        #[derive(Debug)]
         enum #subtype {
             #(#variants),*
         }
@@ -43,15 +44,15 @@ pub fn gen_enum_conversion(
 ) -> TokenStream {
     let arm_parts: Vec<TokenStream> = variants.iter().map(|v| variant_to_arm_partial(v)).collect();
     quote! {
-        impl TryFrom<#supertype> for #subtype {
-            type Error = crate::typesets::supertype::SupertypeError;
+        impl std::convert::TryFrom<#supertype> for #subtype {
+            type Error = crate::TypesetsError;
             fn try_from(supertype: #supertype) -> Result<Self, Self::Error> {
                 match supertype {
                     #(#supertype::#arm_parts => Ok(#subtype::#arm_parts)),*,
                     other => Err(Self::Error::EnumNoOverlap {
-                        supertype: stringify!(#supertype),
-                        subtype: stringify!(#subtype),
-                        variant: format!("{:?}", other)
+                        supertype: stringify!(#supertype).to_string(),
+                        subtype: stringify!(#subtype).to_string(),
+                        variant: format!("{:?}", other).to_string()
                     })
                 }
             }
@@ -60,7 +61,7 @@ pub fn gen_enum_conversion(
         impl From<#subtype> for #supertype {
             fn from(child: #subtype) -> Self {
                 match child {
-                    #(#supertype::#arm_parts => #subtype::#arm_parts),*
+                    #(#subtype::#arm_parts => #supertype::#arm_parts),*
                 }
             }
         }

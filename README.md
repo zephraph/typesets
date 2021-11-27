@@ -37,7 +37,7 @@ pub enum MyNarrowerType {
 }
 
 impl TryFrom<MyExpansiveType> for MyNarrowerType {
-  type Error = crate::typesets::supertype::SupertypeError;
+  type Error = crate::TypesetsError;
   fn try_from(parent: MyExpansiveType) -> Result<Self, Self::Error> {
     match parent {
       MyExpansiveType::State1(v0) => Ok(MyNarrowerType::State1(v0)),
@@ -67,7 +67,7 @@ pub enum MyOtherType {
 
 
 impl TryFrom<MyExpansiveType> for MyOtherType {
-  type Error = crate::typesets::supertype::SupertypeError;
+  type Error = crate::TypesetsError;
   fn try_from(parent: MyExpansiveType) -> Result<Self, Self::Error> {
     match parent {
       MyExpansiveType::State1(v0) => Ok(MyOtherType::State1(v0)),
