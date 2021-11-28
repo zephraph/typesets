@@ -12,5 +12,4 @@ thiserror = "1.0.30"
 typesets-macro = "0.0.2"
 
 [dev-dependencies]
-typesets-macro = { path = "../typesets-macro" }
 rustfmt-wrapper = "0.1.0"
