@@ -4,7 +4,7 @@ version = "0.0.1"
 authors = ["Justin Bennett <oss@just-be.dev>"]
 edition = "2018"
 license = "Apache-2.0"
-description = "Allows"
+description = "Enables generating subtypes and supertypes of a given type via derive macros"
 repository = "https://github.com/zephraph/typesets.git"
 
 [dependencies]
