@@ -1,6 +1,6 @@
 [package]
 name = "typesets"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Justin Bennett <oss@just-be.dev>"]
 edition = "2018"
 license = "Apache-2.0"
@@ -8,8 +8,9 @@ description = "Enables generating subtypes and supertypes of a given type via de
 repository = "https://github.com/zephraph/typesets.git"
 
 [dependencies]
-typesets-macro = { path = "../typesets-macro" }
 thiserror = "1.0.30"
+typesets-macro = "0.0.2"
 
 [dev-dependencies]
+typesets-macro = { path = "../typesets-macro" }
 rustfmt-wrapper = "0.1.0"
