@@ -3,14 +3,21 @@ use proc_macro_error::abort_call_site;
 use quote::quote;
 use syn::{ItemEnum, Variant};
 
-use crate::gen_enum::gen_enum_conversion;
+use super::gen_enum::gen_enum_conversion;
 
-pub fn gen_subtype(input: TokenStream, item: TokenStream) -> TokenStream {
-    let supertype = syn::parse2::<Ident>(input).unwrap();
+pub fn gen_subtype(input: TokenStream) -> TokenStream {
     if let Ok(ItemEnum {
-        variants, ident, ..
-    }) = syn::parse2(item)
+        variants, ident, attrs, ..
+    }) = syn::parse2(input)
     {
+        let supertype = attrs.iter().find(|a| a.path.is_ident("subtype_of"));
+        let supertype: Ident = match supertype {
+            Some(attr) => match attr.parse_args::<Ident>() {
+                Ok(ident) => ident,
+                Err(_) => abort_call_site!("Expected `subtype_of` attribute to take an ident argument"),
+            },
+            None => abort_call_site!("Expected `subtype_of` attribute describing what the super type is"),
+        };
         let mut variants_list: Vec<Variant> = Vec::default();
         for variant in variants {
             variants_list.push(variant);
@@ -29,8 +36,8 @@ mod tests {
 
     #[test]
     fn test() {
-        let attr = quote! { SomeSuperType };
         let input = quote! {
+          #[subtype_of(SomeSuperType)]
           enum MyEnum {
             Variant1,
             Variant2(u8),
@@ -39,8 +46,8 @@ mod tests {
         };
 
         let expected = quote! {
-            impl TryFrom<SomeSuperType> for MyEnum {
-                type Error = crate::typesets::supertype::SupertypeError;
+            impl std::convert::TryFrom<SomeSuperType> for MyEnum {
+                type Error = crate::TypesetsError;
 
                 fn try_from(supertype: SomeSuperType) -> Result<Self, Self::Error> {
                     match supertype {
@@ -48,9 +55,9 @@ mod tests {
                         SomeSuperType::Variant2(v0) => Ok(MyEnum::Variant2(v0)),
                         SomeSuperType::Variant3 {x, y} => Ok(MyEnum::Variant3 {x, y}),
                         other => Err(Self::Error::EnumNoOverlap {
-                        supertype: stringify!(SomeSuperType),
-                        subtype: stringify!(MyEnum),
-                        variant: format!("{:?}", other)
+                        supertype: stringify!(SomeSuperType).to_string(),
+                        subtype: stringify!(MyEnum).to_string(),
+                        variant: format!("{:?}", other).to_string(),
                     })
 
                     }
@@ -60,16 +67,16 @@ mod tests {
             impl From<MyEnum> for SomeSuperType {
                 fn from(child: MyEnum) -> Self {
                     match child {
-                        SomeSuperType::Variant1 => MyEnum::Variant1,
-                        SomeSuperType::Variant2(v0) => MyEnum::Variant2(v0),
-                        SomeSuperType::Variant3{x, y} => MyEnum::Variant3{x, y},
+                        MyEnum::Variant1 => SomeSuperType::Variant1,
+                        MyEnum::Variant2(v0) => SomeSuperType::Variant2(v0),
+                        MyEnum::Variant3{x, y} => SomeSuperType::Variant3{x, y}
                     }
                 }
             }
         };
 
         similar_asserts::assert_str_eq!(
-            rustfmt(gen_subtype(attr, input)).unwrap(),
+            rustfmt(gen_subtype(input)).unwrap(),
             rustfmt(expected).unwrap()
         )
     }
