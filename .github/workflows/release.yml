@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Prepare repository
+        run: git fetch --unshallow --tags
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Write configuration
+        run: |
+          touch package.json
+          cat << EOF > package.json
+          {
+            "name": "typesets",
+            "version": "0.0.0",
+            "license": "N/A",
+            "auto": {
+              "plugins": ["crates", "released"],
+              "author": "Justin Bennett <oss@just-be.dev>"
+            }
+          }
+          EOF
+
+      - uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-1 # bump this key if needed to update deps
+          restore-keys: |
+            ${{ runner.os }}-node-1
+
+      - name: Install dependencies
+        run: npm install auto @auto-it/crates
+
+      - name: Test and build
+        run: |
+          cargo build
+          cargo test
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          npx auto shipit
