@@ -21,7 +21,7 @@ jobs:
           node-version: 16.x
 
       - name: Write configuration
-      - run: |
+        run: |
           touch package.json
           cat << EOF > package.json
           {
@@ -43,7 +43,7 @@ jobs:
             ${{ runner.os }}-node-1
 
       - name: Install dependencies
-      - run: npm install auto @auto-it/crates
+        run: npm install auto @auto-it/crates
 
       - name: Test and build
         run: |
