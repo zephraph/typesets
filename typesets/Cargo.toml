@@ -9,7 +9,7 @@ repository = "https://github.com/zephraph/typesets.git"
 
 [dependencies]
 thiserror = "1.0.30"
-typesets-macro = "0.0.2"
+typesets-macro = { path = "../typesets-macro", version = "0.0.2" }
 
 [dev-dependencies]
 rustfmt-wrapper = "0.1.0"
